@@ -1,0 +1,178 @@
+{% extends 'admin/base_site.html' %} {% block content %}
+<style>
+  /* Basic container styling */
+  .reports-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 4rem;
+    text-align: center;
+  }
+
+  /* Adjustments for smaller screens */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 3rem;
+    }
+
+    .reports-stats-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .reports-stats-container > div {
+      font-size: 1.5rem;
+    }
+
+    .total-money {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Styling for the statistics container */
+  .reports-stats-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --progress-bar-width: 200px;
+    --progress-bar-height: 200px;
+    --font-size: 2rem;
+  }
+
+  .circular-progress {
+    width: var(--progress-bar-width);
+    height: var(--progress-bar-height);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .inner-circle {
+    position: absolute;
+    width: calc(var(--progress-bar-width) - 30px);
+    height: calc(var(--progress-bar-height) - 30px);
+    border-radius: 50%;
+    background-color: lightgrey;
+  }
+
+  .percentage {
+    position: relative;
+    font-size: 3rem;
+    font-weight: bold;
+    color: currentColor;
+  }
+
+  /* Adjust the size of the circle for medium-sized screens */
+  @media screen and (max-width: 800px) {
+    :root {
+      --progress-bar-width: 180px; /* Adjusted size */
+      --progress-bar-height: 180px; /* Adjusted size */
+      --font-size: 1.5rem;
+    }
+  }
+
+  /* Adjust the size of the circle for smaller screens */
+  @media screen and (max-width: 500px) {
+    :root {
+      --progress-bar-width: 160px; /* Adjusted size */
+      --progress-bar-height: 160px; /* Adjusted size */
+      --font-size: 1.2rem;
+    }
+  }
+
+  .stats-text {
+    font-size: 2rem;
+    font-weight: bolder;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .total-money {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bolder;
+    font-size: 3rem;
+    text-align: center;
+  }
+</style>
+
+<div class="reports-container">
+  <h1>Reportes</h1>
+
+  <div class="reports-stats-container">
+    <!-- left side -->
+    <div class="stats-text">
+      <p>Boletas pago total {{lottery_stats.complete_tickets_payment}}</p>
+      <p>Boletas con abono {{lottery_stats.tickets_with_payments}}</p>
+      <p>Boletas pendientes {{lottery_stats.pending_tickets}}</p>
+    </div>
+
+    <!-- right side -->
+    <div
+      class="circular-progress"
+      data-inner-circle-color="lightgrey"
+      data-percentage="{{lottery_stats.percentage}}"
+      data-progress-color="rgb(227 128 103)"
+      data-bg-color="currentColor"
+    >
+      <div class="inner-circle"></div>
+      <p class="percentage">0%</p>
+    </div>
+  </div>
+
+  <div class="total-money">
+    <p>Total dinero recaudado</p>
+    <p>${{lottery_stats.total_money_raised}}</p>
+  </div>
+</div>
+
+<script>
+  const circularProgress = document.querySelectorAll(".circular-progress");
+
+  Array.from(circularProgress).forEach((progressBar) => {
+    const progressValue = progressBar.querySelector(".percentage");
+    const innerCircle = progressBar.querySelector(".inner-circle");
+
+    // Get the percentage value and clamp it between 0 and 100
+    let percentageValue = parseFloat(progressBar.getAttribute("data-percentage"));
+
+    let speed = 20;
+    let progressColor = progressBar.getAttribute("data-progress-color");
+
+    progressValue.textContent = `${percentageValue}%`;
+    progressValue.style.color = `currentColor`;
+
+    innerCircle.style.backgroundColor = `${progressBar.getAttribute(
+      "data-inner-circle-color"
+    )}`;
+
+    progressBar.style.background = `conic-gradient(${progressColor} ${
+      percentageValue * 3.6
+    }deg,${progressBar.getAttribute("data-bg-color")} 0deg)`;
+  });
+</script>
+
+{% endblock %}

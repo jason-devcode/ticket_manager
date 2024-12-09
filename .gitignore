@@ -1,0 +1,19 @@
+# IGNORE VIRTUAL ENVIRONMENT
+env/
+venv/
+
+# IGNORE VSCODE SETTINGS
+.vscode/
+
+# IGNORE PYCACHE DIRECTORIES
+__pycache__/
+
+# IGNORE TEMP DIRECTORY
+temp/
+
+# SQLite DB
+db.sqlite3
+
+# IGNORE ENVIRONMENT CREDENTIALS
+.env*
+.config*

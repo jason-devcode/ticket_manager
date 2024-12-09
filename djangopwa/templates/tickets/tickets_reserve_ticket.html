@@ -1,0 +1,116 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+<div class="flex flex-col gap-5 w-full h-screen items-center p-5 relative overflow-y-scroll">
+  <div class="rounded-lg px-10 z-10 w-full md:w-auto">
+    <h3 class="md:block hidden text-center md:text-6xl text-3xl font-light mb-5 uppercase">logo</h3>
+    <h4 class="text-center md:text-6xl text-2xl font-bold md:mb-24 mb-8">DATOS PARA SEPARAR RIFA</h4>
+
+    <form class="flex md:flex-row-reverse justify-center flex-col relative w-full" method="post">
+      {% csrf_token %}
+      <div class="grid md:grid-cols-2 gap-3 md:ml-6">
+        <div class="">
+          <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}"
+            class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+            placeholder="Nombres" {% if form.name.value %} value="{{ form.name.value }}" {% endif %} />
+          {% if form.name.errors %}
+          <div class="form-error text-red-500">{{ form.name.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <input type="text" name="{{ form.lastname.html_name }}" id="{{ form.lastname.id_for_label }}"
+            class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+            placeholder="Apellidos" {% if form.lastname.value %} value="{{ form.lastname.value }}" {% endif %} />
+          {% if form.lastname.errors %}
+          <div class="form-error text-red-500">{{ form.lastname.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <input type="text" name="{{ form.document_number.html_name }}" id="{{ form.document_number.id_for_label }}"
+            class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+            placeholder="Documento" {% if form.document_number.value %} value="{{ form.document_number.value }}"
+            {% endif %} />
+          {% if form.document_number.errors %}
+          <div class="form-error text-red-500">{{ form.document_number.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <input type="number" name="{{ form.whatsapp.html_name }}" id="{{ form.whatsapp.id_for_label }}"
+            class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+            placeholder="{{ form.whatsapp.label }}" {% if form.whatsapp.value %} value="{{ form.whatsapp.value }}"
+            {% endif %} />
+          {% if form.whatsapp.errors %}
+          <div class="form-error text-red-500">{{ form.whatsapp.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <input type="text" name="{{ form.seller_id.html_name }}" id="{{ form.seller_id.id_for_label }}"
+            class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+            placeholder="{{ form.seller_id.label }}" {% if form.seller_id.value %} value="{{ form.seller_id.value }}"
+            {% endif %} />
+          {% if form.seller_id.errors %}
+          <div class="form-error text-red-500">{{ form.seller_id.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <label for="{{ form.city.id_for_label }}" class="">
+            <input type="text" name="{{ form.city.html_name }}" id="{{ form.city.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="{{ form.city.label }}" {% if form.city.value %} value="{{ form.city.value }}" {% endif %} />
+          </label>
+          {% if form.city.errors %}
+          <div class="form-error text-red-500">{{ form.city.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="">
+          <div class="flex items-center">
+            <input type="number" name="{{ form.ticket_number_to_reserve.html_name }}"
+              id="{{ form.ticket_number_to_reserve.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="Numero de rifa a separar: " {% if form.ticket_number_to_reserve.value %}
+              value="{{ form.ticket_number_to_reserve.value }}" {% endif %} />
+            <button id=""
+              class="ml-2 border-2 border-[#2ec2cf] uppercase font-normal text-2xl rounded-full px-4 py-1">+</button>
+          </div>
+          {% if form.ticket_number_to_reserve.errors %}
+          <div class="form-error text-red-500">{{ form.ticket_number_to_reserve.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="flex w-full">
+          <button class="w-full h-12 rounded-lg py-2 px-5 uppercase font-bold text-white bg-[#2ec2cf]"
+            type="submit">Continuar</button>
+        </div>
+      </div>
+  </div>
+  </form>
+</div>
+
+<style>
+  .hide-label-text span {
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll("input");
+
+    inputs.forEach(input => {
+      input.addEventListener("focus", function () {
+        const label = input.closest("label");
+        if (label) {
+          label.classList.add('hide-label-text');
+        }
+      });
+
+      input.addEventListener("blur", function () {
+        const label = input.closest("label");
+        if (label) {
+          label.classList.remove('hide-label-text');
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

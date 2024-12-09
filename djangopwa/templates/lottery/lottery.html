@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="absolute md:top-0 left-0 w-full h-full flex justify-center md:items-center items-start ">
+  <div class="w-full h-auto md:w-3/6 md:p-0 p-2">
+    <h3 class="text-center text-6xl font-light mb-24">Logo</h3>
+    <div class="carousel w-full h-full">
+      {% for media in multimedia_urls %}
+      <div id="slide{{ forloop.counter }}" class="carousel-item relative w-full">
+        {% if media.is_video %}
+          <video class="bg-black w-full h-96 rounded-[3rem]" controls>
+            <source src="{{ media.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        {% else %}
+          <img src="{{ media.url }}" class="w-full max-h-96 rounded-[3rem]" />
+        {% endif %}
+        <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+          <a href="#slide{% if forloop.first %}{{ forloop.counter0|add:forloop.revcounter }}{% else %}{{ forloop.counter|add:-1 }}{% endif %}"
+            class="btn btn-circle">❮</a>
+          <a href="#slide{% if forloop.last %}1{% else %}{{ forloop.counter|add:1 }}{% endif %}"
+            class="btn btn-circle">❯</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<!-- 
+<div
+  class="w-full md:h-[150vh] h-auto md:p-0 py-10 flex flex-col items-center md:bg-[url('https://cdn.pixabay.com/photo/2018/11/29/21/34/lottery-3846567_960_720.jpg')] bg-no-repeat bg-cover relative after:absolute md:after:w-full after:h-full after:bg-[rgba(5,88,88,0.5)]">
+  <div class="w-full mb-8 z-50">
+    <h2 class="divider divider-default text-4xl font-bold md:text-white text-[rgba(0,_187,_212,_1)] mt-10">Rifa
+      {{lottery.name}}</h2>
+  </div>
+  <div class="flex gap-4 flex-col w-full h-full z-50 md:px-10 px-3 mt-5">
+    <div class="flex justify-between item-center gap-6 md:flex-row flex-col-reverse">
+      <div class="w-full rounded-lg">
+        <ul>
+          <li
+            class="w-full h-full text-white block px-24 transition-all  bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] p-2 text-[1.2rem] text-center font-bold rounded-tl-lg rounded-tr-lg">
+            {{lottery.lottery_date_1}}</li>
+          <li
+            class="w-full h-full text-white block px-24 transition-all bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] p-2 text-[1.2rem] text-center font-bold">
+            {{lottery.lottery_date_2}}</li>
+          <li
+            class="w-full h-full text-white block px-24 transition-all bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] p-2 text-[1.2rem] text-center font-bold">
+            {{lottery.lottery_date_3}}</li>
+          <li
+            class="w-full h-full text-white block px-24 transition-all bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] p-2 text-[1.2rem] text-center font-bold rounded-bl-lg rounded-br-lg">
+            {{lottery.lottery_date_4}}</li>
+        </ul>
+      </div>
+      <div class="flex rounded-lg flex-col w-full h-44 justify-between items-center md:mb-0 mb-5">
+        <a class="w-full h-full text-white block px-24 transition-all bg-[rgba(0,_187,_212,_1)] font-bold rounded-tl-lg rounded-tr-lg"
+          href="{% url 'lottery_purchase_data_form' lottery.pk %}">
+          <div class="flex justify-between items-center h-full">
+            <div class="md:text-2xl text-start md:mr-10">
+              COMPRAR RIFA
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8 tex-white font-bold"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+            </svg>
+          </div>
+        </a>
+        <a class="w-full h-full text-white block px-24 transition-all bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] font-bold"
+          href="{% url 'ticket_lucky_roulette' lottery.pk %}">
+          <div class="flex justify-between items-center h-full">
+            <div class="md:text-2xl text-start md:mr-10">
+              PROBAR SUERTE
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8 tex-white font-bold"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+            </svg>
+          </div>
+        </a>
+        <a class="w-full h-full text-white block px-24 transition-all bg-zinc-500 hover:bg-[rgba(0,_187,_212,_1)] font-bold rounded-bl-lg rounded-br-lg"
+          href="{% url 'tickets_reserve_ticket_form' lottery.pk %}">
+          <div class="flex justify-between items-center h-full">
+            <div class="md:text-2xl text-start md:mr-10">
+              SEPARAR NUMERO
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-8 h-8 tex-white font-bold"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
+            </svg>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="grid gap-4 grid-cols-1 md:grid-cols-3 mt-10">
+      {% for media in multimedia_urls %}
+      <div class="h-72 rounded-xl shadow-lg">
+        <img src="{{media}}" class="w-full h-full rounded-xl shadow-lg" />
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div> -->
+
+{% endblock %} {% block aside_menu_options %}
+
+
+{% endblock aside_menu_options %}

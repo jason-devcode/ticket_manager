@@ -1,0 +1,224 @@
+{% extends 'admin/base_site.html' %} {% block content %}
+
+<style>
+  .available-tickets-view-container p {
+    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+      "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  }
+
+  .LOGO {
+    font-weight: bold;
+    font-size: 4rem;
+    color: black;
+  }
+
+  @media (max-width: 1200px) {
+    .LOGO {
+      font-size: 3rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .LOGO {
+      font-size: 3rem;
+    }
+  }
+
+  .bg-2ec2cf {
+    background-color: #2ec2cf;
+  }
+
+  .flex-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .available-tickets-grid-container-border {
+    background-color: #2ec2cf;
+    padding: 1rem;
+    padding-top: 4px;
+    height: 31rem;
+  }
+
+  .available-tickets-grid-container {
+    background-color: white;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    border-bottom-right-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+    position: relative;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-gap: 10px;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    padding: 1rem;
+    overflow-y: scroll;
+  }
+
+  .ticket {
+    text-align: center;
+    border: 1px solid gray; /* Ajusta el color y el estilo del borde según sea necesario */
+    padding: 4px 8px;
+    transition: background-color 0.1s, filter 0.3s;
+    color: black !important;
+    font-weight: bold;
+    text-decoration: none !important;
+  }
+
+  .ticket:hover {
+    filter: brightness(200%);
+    background-color: #3f3f3f; /* Ajusta el color de fondo en el estado hover */
+  }
+
+
+  .search-input input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+  }
+
+  .search-input input[type="number"]::-webkit-inner-spin-button,
+  .search-input input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Chrome, Safari, and Edge */
+    margin: 0; /* Reset margin */
+  }
+
+  .search-input {
+    position: relative;
+    display: flex;
+    height: min-content;
+  }
+
+  .search-input input {
+    width: 100%;
+    padding: 25px 30px;
+    box-sizing: border-box;
+    border: 0px;
+    background-color: #2ec2cf;
+    font-size: 2rem;
+    color: black;
+    border-radius: 5rem;
+  }
+
+  .search-input input:focus {
+    outline: none;
+  }
+
+  .search-input input::placeholder {
+    color: black;
+    font-weight: bold;
+  }
+
+  .search-input-icon {
+    position: absolute;
+    right: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: gray;
+    cursor: pointer; /* Asegúrate de que el icono sea clicable */
+  }
+
+  .search-input input:not(:placeholder-shown) + .icon {
+    display: none; /* Ocultar icono si hay texto */
+  }
+</style>
+
+<div class="flex-container available-tickets-view-container">
+  <div style="display: flex; width: 100%; gap: 8px; padding: 0px 2rem;">
+    <div style="display: flex">
+      <p class="LOGO">Logo</p>
+    </div>
+    <div style="display: flex; width: 100%; justify-content: end">
+      <div class="search-input">
+        <input type="number" placeholder="Buscar" id="searchInput" />
+        <span class="search-input-icon">🔍</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-container available-tickets-grid-container-border">
+    <div class="available-tickets-grid-container">
+      <div
+        class="bg-2ec2cf"
+        style="
+          font-weight: bold;
+          font-size: 1.5rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
+          color: black;
+          margin-bottom: 8px;
+        "
+      >
+        Boletas Disponibles
+      </div>
+
+      {% if not hasAvailableTickets %}
+      <span
+        style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: red;
+          font-weight: bold;
+          font-size: 2rem;
+          text-align: center;
+        "
+      >
+        ¡No hay boletas disponibles!
+      </span>
+      {% endif %}
+
+      <div class="grid-container">
+        {% for ticket in tickets %} {% if ticket.state == 1 %}
+        <a
+          class="ticket available"
+          href="/admin/djangopwa/ticketreserved/add/?lottery_to_buy={{lottery_id}}&ticket={{ticket.id}}"
+        >
+          {{ ticket.number|stringformat:"04d" }}
+        </a>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const searchInput = document.getElementById("searchInput");
+    const searchIcon = document.querySelector(".search-input-icon");
+
+    function getTicketNumberFromQuery() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get("ticket_number");
+    }
+
+    function searchTicket() {
+      const ticketNumber = searchInput.value;
+      const currentUrl = window.location.href.split("?")[0];
+      if (ticketNumber) {
+        window.location.href = `${currentUrl}?ticket_number=${ticketNumber}`;
+      } else window.location.href = currentUrl;
+    }
+
+    const ticketNumberFromQuery = getTicketNumberFromQuery();
+    if (ticketNumberFromQuery) {
+      searchInput.value = ticketNumberFromQuery;
+    }
+
+    searchIcon.addEventListener("click", searchTicket);
+
+    searchInput.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        searchTicket();
+      }
+    });
+  })();
+</script>
+
+{% endblock %}

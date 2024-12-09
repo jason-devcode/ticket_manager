@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+{% if status %}
+
+<form>
+    <script src="https://checkout.wompi.co/widget.js" data-render="button" data-redirect-url="{{WOMPI_REDIRECT_URL}}"
+        data-public-key="{{WOMPI_PUBLIC_KEY}}" data-currency="COP" data-amount-in-cents={{AMOUNT_TO_PAY_IN_CENTS}}
+        data-reference="{{PURCHASE_REFERENCE}}" data-signature:integrity="{{INTEGRITY_SIGNATURE}}"></script>
+</form>
+
+
+<script type="text/javascript">
+    const wompiButton = document.querySelector(".waybox-button")
+    wompiButton.click();
+</script>
+
+{% else %}
+
+<div class="flex w-full h-full justify-center items-center">
+    <div class="flex w-full h-full justify-center items-center">
+        <p class="text-3xl text-center font-bold text-red-600">
+            ¡Parece que hubo un error! Por favor, póngase en contacto con nosotros.
+        </p>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock content %}

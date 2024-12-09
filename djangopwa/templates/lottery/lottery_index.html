@@ -1,0 +1,193 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block content %}
+<div id="main-container" class="flex flex-col w-full h-full p-6 gap-6 transition-all duration-300 overflow-y-scroll">
+    <div class="flex w-full justify-center text-4xl"> LOGO </div>
+
+    <!-- lottery info view -->
+    <div class="flex flex-col-reverse md:flex-row w-full gap-4">
+        <div class="flex flex-col-reverse md:flex-col w-full h-min gap-4">
+            <div class="flex flex-col gap-8 w-full h-full bg-cyan-200 rounded-2xl p-4">
+                <span
+                    class="flex justify-center items-center text-center w-full p-8 rounded-2xl bg-white font-semibold text-2xl text-amber-400 shadow-md break-words">
+                    {{lottery.name}}
+                </span>
+                <span
+                    class="flex justify-center items-center text-center w-full p-3 rounded-2xl bg-white font-semibold text-black shadow-md break-words">
+                    {{lottery.description}}
+                </span>
+            </div>
+            <button
+                class="flex justify-center items-center w-full h-12 rounded-lg bg-green-500 font-semibold text-white shadow-md "
+                onclick="scrollToElement()">
+                COMPRA TUS NÚMEROS
+            </button>
+        </div>
+
+        <div class="w-full h-[28rem] md:h-[30rem] rounded-[3rem] overflow-hidden">
+            <div class="carousel w-full h-full">
+                {% for media in lottery_media %}
+                <div id="slide{{ forloop.counter }}"
+                    class="carousel-item relative flex justify-center items-center w-full">
+                    {% if media.is_video %}
+                    <video class="bg-black w-full h-96 rounded-[3rem]" controls>
+                        <source src="{{ media.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    {% else %}
+                    <!-- <div class="lottery_media_img_slot flex w-full h-full"
+                        style="background-image: url({{media.url}});"></div>
+                         -->
+                    <img src="{{media.url}}" class="flex w-auto h-auto max-h-full rounded-[3rem]">
+                    {% endif %}
+                    {% if lottery_media|length > 1 %}
+                    <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                        <a href="#slide{% if forloop.first %}{{ forloop.counter0|add:forloop.revcounter }}{% else %}{{ forloop.counter|add:-1 }}{% endif %}"
+                            class="btn btn-circle">❮</a>
+                        <a href="#slide{% if forloop.last %}1{% else %}{{ forloop.counter|add:1 }}{% endif %}"
+                            class="btn btn-circle">❯</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- buy tickets view -->
+    <div class="flex flex-col md:flex-row w-full gap-4">
+        <!-- ticket price -->
+        <div class="relative flex flex-col w-full p-6 items-center rounded-[3rem] bg-slate-100">
+            <div class="md:sticky flex flex-col md:top-[40%] left-0 w-full">
+                <span class="text-xl text-center font-semibold text-orange-500">VALOR UNITARIO POR NÚMERO</span>
+                <div
+                    class="flex justify-center items-center text-center px-4 py-2 rounded-lg bg-white text-[3.5rem] font-bold text-orange-500 shadow-lg">
+                    ${{ticket_price}}</div>
+                <span class="text-2xl text-center font-semibold text-orange-500">Jugamos con la lotería del
+                    huila</span>
+            </div>
+        </div>
+
+        <!-- ticket selectors -->
+        <div id="buy-your-numbers"
+            class="relative flex flex-col w-full justify-center items-center rounded-[3rem] bg-slate-100 overflow-hidden">
+
+            <div class="flex flex-col w-full justify-center items-center bg-slate-100 px-4 py-4 rounded-lg gap-4">
+                <span class="font-bold text-3xl p-2"> Mis numeros </span>
+                <div class="flex justify-center items-center w-full border-4 border-cyan-400 rounded-lg p-8">
+                    <!-- selected numbers container -->
+                    <div id="my-numbers"
+                        class="relative grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 place-items-center justify-center w-full h-full gap-4">
+                        <span id="warning-select-numbers"
+                            class="text-red-500 flex col-span-full w-full justify-center items-center text-center">
+                            Aquí se mostrarán los números que vayas seleccionando </span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4"> <button id="buy-now-button"
+                        class="bg-orange-500 text-white font-semibold text-lg md:text-xl rounded-lg px-4 md:px-8 py-4"
+                        onclick="onClickBuyNow()">
+                        COMPRAR AHORA
+                    </button>
+                </div>
+            </div>
+
+            <!-- LUCKY ROULETTE -->
+            <div class="text-center z-10 rounded-xl px-14 py-4">
+                <h3 class="md:text-2xl text-[.9rem] font-bold uppercase mb-2">¡Prepárate para la emoción!</h3>
+                <h3 class="md:text-4xl text-2xl font-bold uppercase md:mb-4 mb-6 text-[#00bcd4]">RULETA DE LA SUERTE
+                </h3>
+                <!-- <p class="md:text-lg text-[0.8rem] font-light uppercase mb-12 md:block hidden">A continuación, se mostrará un número
+                  al azar de cuatro cifras al
+                  presionar "Girar".
+                  Si te gusta, puedes seleccionarlo como el número que comprarás para la rifa.
+                  ¡Pero no te preocupes! Si no es de tu agrado, puedes girar de nuevo y probar suerte otra vez</p> -->
+                <div class="flex justify-center items-center">
+                    <div class="slot-machine relative flex justify-center w-full max-w-[20rem] gap-3">
+                        <div class="reel text-6xl font-extrabold h-[50px]" id="reel1" data-angle="0"></div>
+                        <div class="reel text-6xl font-extrabold h-[50px]" id="reel2" data-angle="0"></div>
+                        <div class="reel text-6xl font-extrabold h-[50px]" id="reel3" data-angle="0"></div>
+                        <div class="reel text-6xl font-extrabold h-[50px]" id="reel4" data-angle="0"></div>
+                    </div>
+                </div>
+                <div class="mt-14 md:w-1/2 w-full mx-auto">
+                    <button
+                        class="w-full block transition-all mb-5 bg-[#00bcd4] px-5 py-2 text-white font-semibold rounded shadow-lg hover:bg-[#00a9be]"
+                        id="spinButton">Girar</button>
+                    <div id="actionButtons" class="overflow-hidden transition-all" style="height: 0px;">
+                        <button id="buyTicketLink"
+                            class="w-full block transition-all mb-5 bg-[#00bcd4] px-5 py-2 text-white font-semibold rounded shadow-lg hover:bg-[#00a9be]">Agregar
+                            al carrito</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ticket number search -->
+            <div id="ticket-form" method="get" class="flex flex-col items-center gap-4 p-4 bg-cyan-200 rounded-lg">
+                <label class="text-xl font-bold"> Buscar boleta </label>
+                <div class="flex justify-between items-center gap-x-2">
+                    <input type="number" id="ticket-number-digit-4" min="0" max="9"
+                        class="input input-bordered max-w-xs text-center w-14 md:w-20 text-4xl font-semibold" value="0"
+                        required />
+                    <input type="number" id="ticket-number-digit-3" min="0" max="9"
+                        class="input input-bordered max-w-xs text-center w-14 md:w-20 text-4xl  font-semibold" value="0"
+                        required />
+                    <input type="number" id="ticket-number-digit-2" min="0" max="9"
+                        class="input input-bordered max-w-xs text-center w-14 md:w-20 text-4xl  font-semibold" value="0"
+                        required />
+                    <input type="number" id="ticket-number-digit-1" min="0" max="9"
+                        class="input input-bordered max-w-xs text-center w-14 md:w-20 text-4xl  font-semibold" value="0"
+                        required />
+                </div>
+
+                <button id="check-ticket-state-button"
+                    class="rounded-lg py-2 px-4 uppercase font-bold text-white bg-[#2ec2cf]">Verificar
+                    disponibilidad</button>
+
+                <div id="search-ticket-state-info" class="flex flex-col w-full justify-center">
+                    <span id="warning-ticket-not-available"
+                        class="hidden w-full max-w-max break-words font-bold text-center text-red-600"> Esta
+                        boleta no
+                        se encuentra disponible, por favor
+                        busque otra boleta </span>
+
+                    <div id="add-to-shoppy-cart-button-search-section" class="hidden flex-col w-full gap-4">
+                        <span class="w-full break-words font-bold text-center text-green-500 text-lg">
+                            Boleta disponible </span>
+                        <button
+                            class="flex rounded-lg py-2 px-4 justify-center items-center text-center uppercase font-bold text-white bg-[#2ec2cf]"
+                            onclick="handleOnClickAddToShoppyCartSearchSection()">Agregar al
+                            carrito</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pagination-controls" class="flex justify-center items-center p-4">
+                <button id="prev-button"
+                    class="text-center border rounded-lg bg-white text-gray-800 hover:bg-gray-200 transition-colors duration-300 shadow-md hover:shadow-lg p-2 font-semibold"
+                    disabled>
+                    &laquo; Anterior
+                </button>
+                <span id="page-info" class="mx-4 text-gray-600">Página 1</span>
+                <button id="next-button"
+                    class="text-center border rounded-lg bg-white text-gray-800 hover:bg-gray-200 transition-colors duration-300 shadow-md hover:shadow-lg p-2 font-semibold">
+                    Siguiente &raquo;
+                </button>
+            </div>
+
+            <div id="ticket-container"
+                class="grid justify-between gap-2 grid-cols-4 md:grid-cols-8 p-2 w-full h-96 overflow-y-scroll bg-slate-100">
+                <!-- Los tickets se cargarán aquí -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+<script src="{% static 'js/index.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+    setGlobalLotteryId({{ lottery.id }});
+</script>
+{% endblock %}

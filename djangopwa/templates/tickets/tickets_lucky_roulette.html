@@ -1,0 +1,324 @@
+{% extends "layouts/base.html" %} {% block content %}
+<div
+  class="flex flex-col gap-5 w-full h-screen justify-center items-center bg-gray-100 p-5"
+>
+  <div class="text-center z-10 rounded-xl p-14">
+    <h3 class="md:text-2xl text-[.9rem] font-bold uppercase mb-2">
+      ¡Prepárate para la emoción!
+    </h3>
+    <h3
+      class="md:text-4xl text-2xl font-bold uppercase md:mb-4 mb-6 text-[#00bcd4]"
+    >
+      TU NUMERO DE LA SUERTE
+    </h3>
+    <!-- <p class="md:text-lg text-[0.8rem] font-light uppercase mb-12 md:block hidden">A continuación, se mostrará un número
+      al azar de cuatro cifras al
+      presionar "Girar".
+      Si te gusta, puedes seleccionarlo como el número que comprarás para la rifa.
+      ¡Pero no te preocupes! Si no es de tu agrado, puedes girar de nuevo y probar suerte otra vez</p> -->
+    <div class="flex justify-center items-center">
+      <div
+        class="slot-machine relative flex justify-center w-full max-w-[20rem] gap-3"
+      >
+        <div
+          class="reel text-6xl font-extrabold h-[50px]"
+          id="reel1"
+          data-angle="0"
+        ></div>
+        <div
+          class="reel text-6xl font-extrabold h-[50px]"
+          id="reel2"
+          data-angle="0"
+        ></div>
+        <div
+          class="reel text-6xl font-extrabold h-[50px]"
+          id="reel3"
+          data-angle="0"
+        ></div>
+        <div
+          class="reel text-6xl font-extrabold h-[50px]"
+          id="reel4"
+          data-angle="0"
+        ></div>
+      </div>
+    </div>
+    <div class="mt-14 md:w-1/2 w-full mx-auto">
+      <button
+        class="w-full block transition-all mb-5 bg-[#00bcd4] px-5 py-2 text-white font-semibold rounded shadow-lg hover:bg-[#00a9be]"
+        id="spinButton"
+      >
+        Girar
+      </button>
+      <div id="actionButtons" class="overflow-hidden h-0 transition-all">
+        <a
+          id="buyTicketLink"
+          class="w-full block transition-all mb-5 bg-[#00bcd4] px-5 py-2 text-white font-semibold rounded shadow-lg hover:bg-[#00a9be]"
+          href="#"
+          >Comprar Rifa</a
+        >
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .slot-machine {
+      perspective: 500px;
+    }
+
+    .reel {
+      width: 50px;
+      /* height: 150px; */
+      /* overflow: hidden; */
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-style: preserve-3d;
+    }
+
+    .reel div {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      transform: rotateX(0deg) translateZ(75px);
+      transition: transform 0.3s ease-in-out;
+    }
+  </style>
+
+  <script type="text/javascript">
+    /**
+     * Generates a random permutation of numbers from 0 to 9.
+     *
+     * @returns {number[]} An array of numbers from 0 to 9 in random order.
+     */
+    const getRandomNumber = () => {
+      const numbers = Array.from({ length: 10 }, (_, i) => i);
+      for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+      }
+      numbers[0] = 0;
+      return numbers;
+    };
+
+    /**
+     * Creates the HTML content for a reel.
+     *
+     * @returns {string} The HTML content with divs for each number.
+     */
+    const createReelContent = () => {
+      return getRandomNumber()
+        .map(
+          (value, index) =>
+            `<div data-number="${value}" style="transform: rotateX(${
+              index * 36
+            }deg) translateZ(75px);">${value}</div>`
+        )
+        .join("");
+    };
+
+    /**
+     * Initializes the reels by setting their HTML content and initial data attributes.
+     */
+    const initReels = () => {
+      const reelIds = ["reel1", "reel2", "reel3", "reel4"];
+      reelIds.forEach((reelId) => {
+        const reel = document.getElementById(reelId);
+        if (reel) {
+          reel.innerHTML = createReelContent();
+          reel.setAttribute("data-angle", "0");
+        }
+      });
+    };
+
+    /**
+     * Gets the front number of a reel based on its current rotation angle.
+     *
+     * @param {HTMLElement} reel - The reel element.
+     * @returns {string} The number currently at the front of the reel.
+     */
+    const getFrontNumber = (reel) => {
+      const currentAngle = parseFloat(reel.getAttribute("data-angle"));
+      const normalizedAngle = currentAngle % 360;
+      const index = (10 - normalizedAngle / 36) % 10;
+      return reel.children[Math.round(index)].getAttribute("data-number");
+    };
+
+    /**
+     * Rotates a reel by 36 degrees.
+     *
+     * @param {HTMLElement} reel - The reel element to rotate.
+     */
+    const rotateReel = (reel) => {
+      let currentAngle = parseFloat(reel.getAttribute("data-angle"));
+      currentAngle -= 36;
+      reel.setAttribute("data-angle", currentAngle);
+
+      Array.from(reel.children).forEach((child) => {
+        const angle =
+          parseFloat(
+            child.style.transform.match(/rotateX\(([-\d.]+)deg\)/)[1]
+          ) - 36;
+        child.style.transform = `rotateX(${angle}deg) translateZ(75px)`;
+        const normalizedAngle = angle % 360;
+        if (normalizedAngle === 0) {
+          child.style.color = "#00a9be";
+        } else {
+          child.style.color = "grey";
+        }
+      });
+    };
+
+    /**
+     * Starts the rotation of a reel to reach a target number.
+     *
+     * @param {string} id - The ID of the reel element.
+     * @param {string} targetNumber - The target number to stop at.
+     */
+    const startRotation = (id, targetNumber) => {
+      const reel = document.getElementById(id);
+      const rotationInterval = 100;
+      const rotationDuration = 5000;
+
+      const interval = setInterval(() => rotateReel(reel), rotationInterval);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        let frontNumber = getFrontNumber(reel);
+        const stopInterval = setInterval(() => {
+          if (frontNumber == targetNumber) {
+            clearInterval(stopInterval);
+            showActionButtons();
+          } else {
+            rotateReel(reel);
+            frontNumber = getFrontNumber(reel);
+          }
+        }, rotationInterval);
+      }, rotationDuration);
+    };
+
+    /**
+     * Rotates multiple reels to reach their respective target numbers.
+     *
+     * @param {number[]} arrayNumbersTickets - An array of target numbers for each reel.
+     */
+    const RotateButton = (arrayNumbersTickets) => {
+      arrayNumbersTickets.forEach((value, index) => {
+        startRotation(`reel${index + 1}`, value.toString());
+      });
+    };
+
+    /**
+     * Gets the current lottery ID from the template.
+     * @returns {number} The lottery ID as an integer.
+     */
+    const getCurrentLotteryId = () => {
+      const lotteryId = parseInt("{{lottery_id}}");
+      return lotteryId;
+    };
+
+    /**
+     * Builds the endpoint URL for fetching a random available ticket.
+     * @returns {string} The endpoint URL.
+     */
+    const buildEndpointRandomTicketNumber = () => {
+      const lotteryId = getCurrentLotteryId();
+      const endpointUrl = `/api/lottery/${lotteryId}/random_available_ticket/`;
+      return endpointUrl;
+    };
+
+    /**
+     * Handles the response from a fetch request and throws an error if the response is not OK.
+     * @param {Response} response - The response object from the fetch request.
+     * @returns {Promise} The JSON representation of the response.
+     * @throws {Error} If the response is not OK.
+     */
+    const handleBadRequestResponse = (response) => {
+      if (!response.ok) throw new Error("Error while processing the request");
+      return response.json();
+    };
+
+    /**
+     * Shows the action buttons after the first response is received.
+     */
+    const showActionButtons = () => {
+      const actionButtons = document.getElementById("actionButtons");
+      actionButtons.style.height = "7rem";
+    };
+
+    /**
+     * Changes the text of the spin button to "Girar de nuevo" after the first response is received.
+     */
+    const changeSpinButtonText = () => {
+      document.getElementById("spinButton").textContent = "Girar de nuevo";
+    };
+
+    /**
+     * Formats the ticket number with leading zeros to ensure a consistent display format.
+     * @param {number} ticket_number - The ticket number to be formatted.
+     * @returns {string} The formatted ticket number.
+     */
+    const formattingTicketNumber = (ticket_number) =>
+      ticket_number.toString().padStart(4, "0");
+
+    /**
+     * Updates the reservation link with the ticket number obtained from the spin.
+     * @param {number} ticketNumber - The ticket number obtained from the spin.
+     */
+    const updateReservationLink = (ticketNumber) => {
+      const reserveTicketLink = document.getElementById("reserveTicketLink");
+      reserveTicketLink.href = `{% url 'tickets_reserve_ticket_form' lottery_id=lottery_id %}?ticket_number=${ticketNumber}`;
+    };
+
+    /**
+     * Updates the buy ticket link with the ticket number obtained from the spin.
+     * @param {number} ticketNumber - The ticket number obtained from the spin.
+     */
+    const updateBuyTicketLink = (ticketNumber) => {
+      const buyTicketLink = document.getElementById("buyTicketLink");
+      const lotteryId = getCurrentLotteryId();
+      buyTicketLink.href = `/lottery/{{lottery_id}}/purchase_data?ticket_numbers=${ticketNumber}`;
+    };
+
+    /**
+     * Handles the response from the spin roulette request, updating the ticket numbers display and showing action buttons.
+     * @param {Object} data - The response data containing the ticket number.
+     */
+    const handleRequestResponseSpinRoulette = (data) => {
+      const ticketNumber = formattingTicketNumber(data.ticket_number);
+      RotateButton(Array.from(ticketNumber));
+      changeSpinButtonText();
+      // updateReservationLink(data.ticket_number);
+      updateBuyTicketLink(data.ticket_number);
+    };
+
+    /**
+     * Handles any exceptions or errors that occur during the request process.
+     * @param {Error} error - The error object containing details of the error.
+     */
+    const handleCatchExceptionErrorRequest = (error) => {
+      console.error("Error:", error.message);
+    };
+
+    /**
+     * Initiates the spin roulette request to fetch a random available ticket.
+     */
+    const performSpinRouletteRequest = () => {
+      const endpointUrl = buildEndpointRandomTicketNumber();
+      fetch(endpointUrl)
+        .then(handleBadRequestResponse)
+        .then(handleRequestResponseSpinRoulette);
+    };
+
+    document
+      .getElementById("spinButton")
+      .addEventListener("click", performSpinRouletteRequest);
+
+    // Initialize the reels when the script is loaded.
+    initReels();
+  </script>
+  {% endblock content %}
+</div>

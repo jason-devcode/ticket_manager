@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %} {% block content %}
+<div class="flex flex-col h-[80%]">
+  <div
+    class="flex flex-col gap-4 justify-center items-center w-full h-full p-2"
+  >
+    <p class="text-xl font-bold text-green-600">Su compra está pendiente.</p>
+    <p class="text-xl font-bold">
+      Por favor, póngase en contacto con nosotros.
+    </p>
+
+    <div class="flex flex-col rounded-md w-full">
+      <p class="text-xl font-bold py-4">Contactos de pago:</p>
+      <div class="flex flex-col overflow-y-scroll rounded-md max-h-60">
+        {% for payment_contact in payment_contacts %}
+        <div
+          class="card bg-white shadow-md border border-black/25 rounded-lg p-4 mb-4"
+        >
+          <p class="text-lg font-semibold">{{ payment_contact.name }}</p>
+          <p>{{ payment_contact.email }}</p>
+          <p>{{ payment_contact.whatsapp }}</p>
+          <!-- Agrega más campos según tu modelo -->
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

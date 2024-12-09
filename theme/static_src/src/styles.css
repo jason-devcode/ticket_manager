@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html {
+  scroll-behavior: smooth !important;
+}
+
+.btn-generic-link-submit {
+  @apply border rounded-lg py-2 px-4 bg-zinc-500 text-white hover:bg-zinc-400;
+}
+
+/* lottery classes */
+
+.btn-index-lottery-option {
+  @apply border border-black rounded-full w-min text-nowrap py-2 px-4 hover:bg-zinc-300
+}
+
+/* Ticket classes */
+
+.btn-lottery-ticket__available {
+  @apply bg-white;
+}
+
+.btn-lottery-ticket__reserved {
+  @apply bg-red-500 text-white line-through;
+}
+
+.btn-lottery-ticket__purchased {
+  @apply bg-zinc-950 text-white line-through;
+}
+
+.main-sidemenu-option {
+  @apply w-full text-center rounded-r-full hover:bg-white hover:text-green-400 py-4
+}
+
+body, html {
+  overflow-x: hidden !important;
+}
+.rounded-inset {
+  color: red;
+}

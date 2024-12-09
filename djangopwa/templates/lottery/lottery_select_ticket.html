@@ -1,0 +1,350 @@
+{% extends "layouts/base.html" %} {% block content %}
+<style>
+  .card-selected-ticket {
+    font-weight: bold;
+    background-color: #2ec2cf;
+    border-radius: 1rem;
+    padding-left: 4px;
+    padding-right: 4px;
+    width: min-content;
+  }
+
+  .grid-cols-auto {
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  }
+</style>
+<div
+  class="flex flex-col items-center gap-4 p-2 h-full text-black overflow-y-scroll"
+>
+  <div class="bg-[#2ec2cf] w-full mt-6 p-2 rounded-3xl">
+    <div class="flex flex-col items-center bg-white rounded-2xl">
+      <span class="font-bold w-min text-nowrap">MIS NUMEROS SELECCIONADOS</span>
+
+      <div
+        id="grid-selected-tickets"
+        class="grid grid-cols-auto gap-4 w-full p-4"
+      ></div>
+    </div>
+  </div>
+
+  <div
+    onclick="onClickBuyNow()"
+    class="bg-[#2ec2cf] font-bold text-2xl p-2 rounded-xl text-nowrap"
+  >
+    COMPRAR AHORA
+  </div>
+
+  <div class="flex flex-col items-center gap-2 w-full justify-center">
+    <label class="text-xl font-bold"> Buscar boleta </label>
+    <div class="flex justify-between items-center gap-x-2">
+      <input
+        type="number"
+        id="input-to-search-ticket-info"
+        min="0"
+        max="9"
+        class="input input-bordered max-w-lg text-center text-4xl font-semibold"
+        value="0000"
+      />
+    </div>
+
+    <div id="ticket-info" class="flex flex-col">
+      <div id="search-ticket-state" class="hidden gap-4">
+        <span class="font-bold">Estado:</span>
+        <span id="ticket-state"></span>
+      </div>
+
+      <div
+        id="client-info-ticket-search"
+        class="hidden flex-col p-4 rounded-2xl bg-[#2ec2cf]"
+      >
+        <div class="flex gap-4">
+          <span class="font-bold">Boleta de:</span>
+        </div>
+        <div class="flex gap-4">
+          <span class="font-bold">Nombre:</span>
+          <span id="ticket-search-user-namelastname"><span>
+        </div>
+        <div class="flex gap-4">
+          <span class="font-bold">CC:</span>
+          <span id="ticket-search-user-document-number"></span>
+        </div>
+        <div class="flex gap-4">
+          <span class="font-bold">Pagos:</span>
+          <span id="ticket-search-user-payment-count"></span>
+
+        </div>
+        <div class="flex gap-4">
+          <span class="font-bold">Saldo:</span>
+          <span id="ticket-search-user-total-payment"></span>
+        </div>
+      </div>
+    </div>
+
+    <button
+      id="select-ticket-number"
+      class="hidden rounded-lg py-2 px-4 uppercase font-bold text-white bg-[#2ec2cf]"
+    >
+      Seleccionar numero
+    </button>
+
+    <button
+      onclick="onClickGetTicketInfo()"
+      class="rounded-lg py-2 px-4 uppercase font-bold text-white bg-[#2ec2cf]"
+    >
+      Verificar disponibilidad
+    </button>
+  </div>
+
+  <div class="flex flex-col w-full items-center justify-center">
+    <span
+      class="px-4 bg-[#2ec2cf] text-md text-center font-bold rounded-3xl text-nowrap"
+      >NUMEROS DISPONIBLES</span
+    >
+    <div class="bg-[#2ec2cf] p-2 rounded-3xl">
+      <div
+        class="flex flex-col overflow-y-scroll h-52 items-center bg-white rounded-2xl"
+      >
+        <div
+          id="grid-available-tickets"
+          class="grid grid-cols-6 md:grid-cols-11 p-2 gap-1"
+        >
+          {% for ticket in tickets %} {% if ticket.state == 1 %}
+          <div
+            id="grid-item-ticket-number-{{ticket.number}}"
+            class="ticket-number text-center border hover:brightness-200 hover:bg-zinc-600"
+          >
+            {{ ticket.number|stringformat:"04d" }}
+          </div>
+          {% endif %} {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} {% block javascript %}
+
+<script type="text/javascript">
+  let selectedTickets = [];
+
+  const addSelectTicket = (ticketNumber) => {
+    // Check if the ticket is already in the array
+    if (!selectedTickets.includes(ticketNumber)) {
+      // Add the ticket number to the array
+      selectedTickets.push(ticketNumber);
+    }
+  };
+
+  const removeSelectTicket = (ticketNumber) => {
+    // Find the index of the ticket in the array
+    const index = selectedTickets.indexOf(ticketNumber);
+
+    // If the ticket exists in the array, remove it
+    if (index !== -1) {
+      selectedTickets.splice(index, 1);
+    }
+  };
+
+  const generateQueryStringSelectedTickets = () => {
+    // Join the selectedTickets array into a comma-separated string
+    const ticketNumbers = selectedTickets.join(",");
+    // Create the query string
+    const queryString = `ticket_numbers=${ticketNumbers}`;
+    return queryString;
+  };
+</script>
+
+<script type="text/javascript">
+  const addSelectedTicketCard = (ticketNumber) => {
+    if (selectedTickets.includes(ticketNumber)) return;
+
+    const selectedTicketsGrid = document.getElementById(
+      "grid-selected-tickets"
+    );
+    if (!selectedTicketsGrid) return;
+    const ticketCard = document.createElement("div");
+    ticketCard.id = `selected-ticket-card-${ticketNumber}`;
+    ticketCard.classList.add("card-selected-ticket");
+    ticketCard.innerText = `${ticketNumber.toString().padStart(4, "0")}`;
+    selectedTicketsGrid.appendChild(ticketCard);
+
+    const ticketGridItem = document.getElementById(
+      `grid-item-ticket-number-${ticketNumber}`
+    );
+    ticketGridItem.classList.add("card-selected-ticket");
+
+    addSelectTicket(ticketNumber);
+  };
+
+  const removeSelectedTicketCard = (ticketNumber) => {
+    const selectedTicketsGrid = document.getElementById(
+      "grid-selected-tickets"
+    );
+    if (!selectedTicketsGrid) return;
+    const ticketCard = document.getElementById(
+      `selected-ticket-card-${ticketNumber}`
+    );
+
+    selectedTicketsGrid.removeChild(ticketCard);
+
+    const gridItemTicketNumber = document.getElementById(
+      `grid-item-ticket-number-${ticketNumber}`
+    );
+
+    removeSelectTicket(ticketNumber);
+
+    if (!gridItemTicketNumber) return;
+
+    gridItemTicketNumber.classList.remove("card-selected-ticket");
+  };
+</script>
+
+<script type="text/javascript">
+  const initGridTicketAvailableEvents = () => {
+    const gridTicketAvailable = document.getElementById(
+      "grid-available-tickets"
+    );
+
+    if (!gridTicketAvailable) {
+      console.log("grid-available-tickets not found");
+      return;
+    }
+
+    gridTicketAvailable.addEventListener("click", (event) => {
+      const target = event.target;
+
+      if (!target.classList.contains("ticket-number")) return;
+
+      const ticketNumber = parseInt(target.innerText, 10);
+
+      if (isNaN(ticketNumber)) {
+        return;
+      }
+
+      if (!target.classList.contains("card-selected-ticket")) {
+        addSelectedTicketCard(ticketNumber);
+        target.classList.add("card-selected-ticket");
+      } else {
+        removeSelectedTicketCard(ticketNumber);
+        target.classList.remove("card-selected-ticket");
+      }
+    });
+  };
+</script>
+
+<script type="text/javascript">
+  const initGridSelectedTickets = () => {
+    const selectedTicketsGrid = document.getElementById(
+      "grid-selected-tickets"
+    );
+    if (!selectedTicketsGrid) return;
+
+    selectedTicketsGrid.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!target.classList.contains("card-selected-ticket")) return;
+
+      const ticketNumber = parseInt(target.innerText, 10);
+
+      removeSelectedTicketCard(ticketNumber);
+    });
+  };
+</script>
+
+<script type="text/javascript">
+  const onClickBuyNow = () => {
+    const query = generateQueryStringSelectedTickets();
+    window.location.href = `${window.location.origin}/lottery/{{lottery.id}}/purchase_data?${query}`;
+  };
+</script>
+
+<script type="text/javascript">
+  let lastListener = undefined;
+
+  const hideButtonAddTicketNumber = () => {
+    const selectTicketSearched = document.getElementById(
+      "select-ticket-number"
+    );
+    selectTicketSearched.style.display = "none";
+  };
+
+  const showButtonAddTicketNumber = (ticket_number) => {
+    const selectTicketSearched = document.getElementById(
+      "select-ticket-number"
+    );
+    selectTicketSearched.style.display = "flex";
+
+    if (lastListener)
+      selectTicketSearched.removeEventListener("click", lastListener);
+    lastListener = () => {
+      addSelectedTicketCard(ticket_number);
+      hideButtonAddTicketNumber();
+    };
+    selectTicketSearched.addEventListener("click", lastListener);
+  };
+
+
+  const setTicketUserInfoContainer = (data) => {
+    const userNameLastname = document.getElementById("ticket-search-user-namelastname");
+    const userDocumentNumber = document.getElementById("ticket-search-user-document-number");
+    const userPaymentCount = document.getElementById("ticket-search-user-payment-count");
+    const userTotalPayment = document.getElementById("ticket-search-user-total-payment");
+
+    userNameLastname.innerText = data?.client?.name_and_lastname ?? "";
+    userDocumentNumber.innerText = data?.client?.document_number ?? "";
+    userPaymentCount.innerText = data?.client?.payment_count ?? "";
+    userTotalPayment.innerText = `$${(data?.client?.total_payment ?? "").toLocaleString('de-DE')}`;
+  }
+
+  const onClickGetTicketInfo = async () => {
+    const clientInfoContainer = document.getElementById("client-info-ticket-search");
+
+    clientInfoContainer.style.display = "none";
+
+    const inputTicketToSearch = document.getElementById(
+      "input-to-search-ticket-info"
+    );
+
+    const ticket_number = parseInt(inputTicketToSearch.value, 10);
+
+    hideButtonAddTicketNumber();
+
+    const response = await fetch(
+      `/api/get_ticket_info/{{lottery.id}}/${ticket_number}`
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    document.getElementById("search-ticket-state").style.display = "flex";
+
+
+    const ticketState = document.getElementById("ticket-state");
+
+    if (data.isAvailable) {
+      showButtonAddTicketNumber(ticket_number);
+      ticketState.innerText = "Disponible";
+      return;
+    }
+
+    clientInfoContainer.style.display = "flex";
+
+    setTicketUserInfoContainer(data);
+
+
+    ticketState.innerText =
+      data.ticket_state == 2
+        ? "Reservada"
+        : data.ticket_state == 3
+        ? "Comprada"
+        : "No disponible";
+    
+  };
+</script>
+
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", () => {
+    initGridTicketAvailableEvents();
+    initGridSelectedTickets();
+  });
+</script>
+{% endblock %}

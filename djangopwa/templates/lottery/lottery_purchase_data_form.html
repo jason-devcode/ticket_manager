@@ -1,0 +1,277 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+<style>
+  .select-country-code {
+    appearance: none;
+    outline: none;
+    text-align: center;
+    border: 0px;
+    border-bottom: 1px solid black;
+    box-shadow: none;
+    font-size: 0.7rem;
+    padding: 0px;
+  }
+
+  .select-country-code:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .phone-number-input {
+    border: none;
+    border-bottom: 1px solid black;
+    box-shadow: none;
+  }
+
+  .phone-number-input:focus {
+    outline: none;
+    box-shadow: none;
+  }
+</style>
+
+<div id="loading-indicator" class="flex flex-col gap-5 w-full h-screen items-center justify-center">
+  Cargando...
+</div>
+
+<div id="main-view" class="hidden flex-col gap-5 w-full h-screen items-center px-8 pt-4 pb-32 relative overflow-y-scroll">
+  <h3 class="md:block hidden text-center md:text-6xl text-3xl font-light mb-5 uppercase">logo</h3>
+
+  {% if all_tickets_available %}
+  <div class="flex flex-col w-full h-full">
+    <h4 class="text-center md:text-6xl text-2xl font-bold m-8 text-nowrap">DATOS DE COMPRA</h4>
+    <div class="flex flex-col gap-4 md:flex-row">
+
+      <div class="flex flex-col justify-center items-center gap-2 p-4 bg-slate-200 rounded-lg">
+        <span class="flex text-center text-lg font-bold text-cyan-700">Numeros a comprar</span>
+        <div
+          class="relative grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 place-items-center justify-center h-full gap-4">
+          {% for ticket_number in ticket_numbers %}
+          <div class="card-selected-number m-4">
+            {{ ticket_number|stringformat:"04d" }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <form class="flex flex-col relative w-full" method="post">
+        {% csrf_token %}
+        <div class="grid md:grid-cols-2 gap-3 mb-8 md:ml-6 overflow-y-scroll">
+          <div class="">
+            <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="Nombres" {% if form.name.value %} value="{{ form.name.value }}" {% endif %} />
+            {% if form.name.errors %}
+            <div class="form-error text-red-500">{{ form.name.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="">
+            <input type="text" name="{{ form.lastname.html_name }}" id="{{ form.lastname.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="Apellidos" {% if form.lastname.value %} value="{{ form.lastname.value }}" {% endif %} />
+            {% if form.lastname.errors %}
+            <div class="form-error text-red-500">{{ form.lastname.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="">
+            <input type="text" name="{{ form.document_number.html_name }}" id="{{ form.document_number.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="Documento" {% if form.document_number.value %} value="{{ form.document_number.value }}"
+              {% endif %} />
+            {% if form.document_number.errors %}
+            <div class="form-error text-red-500">{{ form.document_number.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div id="whatsapp-input-cell" class="flex p-4 flex-col border-2 border-[#2ec2cf] rounded-2xl">
+            <div class="flex w-full gap-4" >
+              <input id="country-code-input" disabled type="text" class="phone-number-input flex w-1/4" value="+57" />
+              <input id="whatsapp-input-ui" type="number" placeholder="Número de teléfono" class="phone-number-input flex w-full" />
+            </div>
+            
+            <input type="number" name="{{ form.whatsapp.html_name }}" id="{{ form.whatsapp.id_for_label }}"
+              class="real-whatsapp-input hidden w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="{{ form.whatsapp.label }}" {% if form.whatsapp.value %} value="{{ form.whatsapp.value }}"
+              {% endif %} />
+
+            {% if form.whatsapp.errors %}
+            <div class="form-error text-red-500">{{ form.whatsapp.errors }}</div>
+            {% endif %}
+          </div>
+
+
+          <div class="">
+            <label for="{{ form.city.id_for_label }}" class="">
+              <input type="text" name="{{ form.city.html_name }}" id="{{ form.city.id_for_label }}"
+                class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+                placeholder="{{ form.city.label }}" {% if form.city.value %} value="{{ form.city.value }}"
+                {% endif %} />
+            </label>
+            {% if form.city.errors %}
+            <div class="form-error text-red-500">{{ form.city.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="">
+            <input type="text" name="{{ form.seller_id.html_name }}" id="{{ form.seller_id.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="{{ form.seller_id.label }}" value="" />
+            {% if form.seller_id.errors %}
+            <div class="form-error text-red-500">{{ form.seller_id.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="">
+            <input type="text" name="{{ form.amount_to_pay.html_name }}" id="{{ form.amount_to_pay.id_for_label }}"
+              class="w-full border-2 border-[#2ec2cf] rounded-full placeholder:font-light placeholder:capitalize"
+              placeholder="{{ form.amount_to_pay.label }}" />
+            {% if form.amount_to_pay.errors %}
+            <div class="form-error text-red-500">{{ form.amount_to_pay.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="flex w-full">
+            <button class="w-full h-12 rounded-lg py-2 px-5 uppercase font-bold text-white bg-[#2ec2cf]" type="submit">Continuar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <span class="flex w-full justify-center text-red-500 text-center font-bold text-4xl">Parece que hubo un error</span>
+  {% endif %}
+</div>
+
+<style>
+  .hide-label-text span {
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll("input");
+
+    inputs.forEach(input => {
+      input.addEventListener("focus", function () {
+        const label = input.closest("label");
+        if (label) {
+          label.classList.add('hide-label-text');
+        }
+      });
+
+      input.addEventListener("blur", function () {
+        const label = input.closest("label");
+        if (label) {
+          label.classList.remove('hide-label-text');
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  let countriesIdd = undefined; // [{"name": "...", "idd": "+57"}]
+
+  const parseSuffixes = (suffixes) => {
+    if(suffixes.length > 0) { 
+      const suffix = suffixes[0];
+      return suffix.length > 2 ? `(${suffix})` : suffix;
+    }
+    return "";
+  }
+
+  const buildIdd = (idd_data) => {
+    const root = idd_data.root;
+    const formattedSuffix = parseSuffixes(idd_data.suffixes);
+    return `${root}${formattedSuffix}`
+  }
+
+  const getCountriesIdd = (countries_data) => countries_data.map(
+      (countryData) => {
+        const nameInSpanish = countryData.name.nativeName?.spa?.common || countryData.name.common; // Use spanish name if is available
+        return { "name": nameInSpanish, "idd": buildIdd( countryData.idd ) };
+      }
+    ).sort((a, b) => a.name.localeCompare(b.name));
+
+  const updateRealWhatsappInput = () => {
+    const countryCodeInput = document.getElementById("country-code-input");
+    const whatsappInputUI = document.getElementById("whatsapp-input-ui");
+    const realWhatsappInput = document.querySelector(".real-whatsapp-input");
+
+    const countryCode = countryCodeInput.value.replace(/[()+]/g, '');
+    const whatsapp = whatsappInputUI.value;
+    const newWhatsappValue = `${countryCode}${whatsapp}`
+
+    realWhatsappInput.value = newWhatsappValue;
+  }
+
+  const updateCountryCodeInput = (newCountryIndex) => {
+    const countryData = countriesIdd[newCountryIndex];
+    const countryCodeInput = document.getElementById("country-code-input");
+    countryCodeInput.value = countryData.idd;
+  }
+
+  const updateRealWhatsappInputBySelect = (event) => {
+    updateCountryCodeInput(event.target.value);
+    updateRealWhatsappInput();
+  }
+
+
+  const createCountrySelect = (countries) => {
+    const select = document.createElement('select');
+    select.id = 'country-select';
+    select.classList.add("select-country-code");
+    select.addEventListener("change",updateRealWhatsappInputBySelect);
+
+    let colombiaIndex = undefined;
+
+    countries.forEach((country, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${country.name}`;
+
+        if(country.name === "Colombia")
+          colombiaIndex = index;
+
+        select.appendChild(option);
+    });
+
+    if(typeof(colombiaIndex) === "number")
+    {
+      select.value = colombiaIndex;
+      updateCountryCodeInput(colombiaIndex);
+    }
+
+    return select;
+  };
+
+  const toggleLoadingToMainView = () => {
+    const loadingIndicator = document.getElementById("loading-indicator");
+    const mainView = document.getElementById("main-view");
+
+    loadingIndicator.style.display = "none";
+    mainView.style.display = "flex";
+  }
+    
+  document.addEventListener("DOMContentLoaded", async function () {
+    const countriesApi = "https://restcountries.com/v3.1/all?fields=name,idd";
+    const data = await (await fetch( countriesApi )).json();
+
+    countriesIdd = getCountriesIdd(data);
+
+    const countrySelect = createCountrySelect(countriesIdd);
+    const whatsappInputCell = document.getElementById("whatsapp-input-cell");
+
+    if (whatsappInputCell) {
+        const labelInput = document.createElement('p');
+        labelInput.innerText = "Whatsapp:";
+        whatsappInputCell.insertBefore(countrySelect, whatsappInputCell.firstChild);
+        whatsappInputCell.insertBefore(labelInput, whatsappInputCell.firstChild);
+
+        const whatsappInputUI = document.getElementById("whatsapp-input-ui");
+        whatsappInputUI.addEventListener("input",updateRealWhatsappInput);
+        updateRealWhatsappInput();
+        toggleLoadingToMainView();
+    }
+  })
+</script>
+
+{% endblock %}

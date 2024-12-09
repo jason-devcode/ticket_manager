@@ -1,0 +1,126 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="flex flex-col overflow-y-scroll p-2 w-full h-screen">
+    <div class="flex w-full justify-center">
+        <form id="ticket-form" method="get" class="flex flex-col items-center gap-4">
+            <label class="text-xl font-bold"> Buscar boleta </label>
+            <div class="flex justify-between items-center gap-x-2">
+                <input type="number" id="ticket-number-digit-4" min="0" max="9"
+                    class="input input-bordered max-w-xs text-center md:w-20 w-full text-4xl  font-semibold" value="0"
+                    required />
+                <input type="number" id="ticket-number-digit-3" min="0" max="9"
+                    class="input input-bordered max-w-xs text-center md:w-20 w-full text-4xl  font-semibold" value="0"
+                    required />
+                <input type="number" id="ticket-number-digit-2" min="0" max="9"
+                    class="input input-bordered max-w-xs text-center md:w-20 w-full text-4xl  font-semibold" value="0"
+                    required />
+                <input type="number" id="ticket-number-digit-1" min="0" max="9"
+                    class="input input-bordered max-w-xs text-center md:w-20 w-full text-4xl  font-semibold" value="0"
+                    required />
+            </div>
+            <button class="rounded-lg py-2 px-4 uppercase font-bold text-white bg-[#2ec2cf]"
+                type="submit">Buscar</button>
+        </form>
+    </div>
+    
+</div>
+{% endblock content %}
+
+{% block sidemenu_options %}
+
+<li><a href="/admin" class="text-white text-[1.2rem] block font-bold text-center">IR AL ADMINISTRADOR</a></li>
+
+{% endblock sidemenu_options %}
+{% block javascript %}
+<script type="text/javascript">
+    {% include "common/ticketsUtils.js" %}
+
+    /**
+     * Gets the current lottery ID from the template.
+     * @returns {number} The lottery ID as an integer.
+     */
+    const getCurrentLotteryId = () => {
+        const lotteryId = "{{lottery_id}}";
+        return lotteryId;
+    };
+
+    /**
+     * Retrieves the value of a specific ticket number digit from the input fields.
+     * @param {number} digitPosition - The position of the digit (1 to 4).
+     * @returns {number} The value of the specified ticket number digit as an integer.
+     */
+    const getInputTicketDigitValue = (digitPosition) =>
+        parseInt(
+            document.getElementById(`ticket-number-digit-${digitPosition}`).value
+        );
+
+    /**
+     * Constructs the complete ticket number from the individual digit values.
+     * @returns {number} The constructed ticket number as an integer.
+     */
+    const getAndBuildTicketNumber = () => {
+        const ticketDigit_1 = getInputTicketDigitValue(1);
+        const ticketDigit_2 = getInputTicketDigitValue(2);
+        const ticketDigit_3 = getInputTicketDigitValue(3);
+        const ticketDigit_4 = getInputTicketDigitValue(4);
+
+        const ticket_number = buildTicketNumber(
+            ticketDigit_1,
+            ticketDigit_2,
+            ticketDigit_3,
+            ticketDigit_4
+        );
+
+        return ticket_number;
+    };
+
+    /**
+     * Handles the form submission event for checking the ticket state.
+     * Prevents the default form submission behavior and redirects to the appropriate ticket detail page.
+     * @param {Event} event - The form submission event.
+     */
+    const handleSubmitCheckTicketStateForm = (event) => {
+        event.preventDefault();
+
+        const lotteryId = getCurrentLotteryId();
+        const ticketNumber = getAndBuildTicketNumber();
+
+        // Build redirect URL
+        const redirectUrl = `/lottery/${lotteryId}/ticket/${ticketNumber}`;
+
+        window.location.href = redirectUrl;
+    };
+
+    /**
+     * Handles the keydown event for input fields to ensure only one digit is entered and no invalid symbols are allowed.
+     * @param {KeyboardEvent} event - The keydown event.
+     */
+    const handleKeyDownEvent = (event) => {
+        const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"];
+        const digitPattern = /^[0-9]$/;
+
+        // Prevent entering more than one digit or invalid characters
+        if (!allowedKeys.includes(event.key) && !digitPattern.test(event.key)) {
+            event.preventDefault();
+        }
+
+        // Prevent entering another digit if the input already has a value
+        if (event.target.value.length >= 1 && digitPattern.test(event.key)) {
+            event.preventDefault();
+        }
+    };
+
+    document
+        .getElementById("ticket-form")
+        .addEventListener("submit", handleSubmitCheckTicketStateForm);
+
+    // Add keydown event listener to each input field
+    for (let i = 1; i <= 4; i++) {
+        document
+            .getElementById(`ticket-number-digit-${i}`)
+            .addEventListener("keydown", handleKeyDownEvent);
+    }
+
+
+</script>
+{% endblock %}

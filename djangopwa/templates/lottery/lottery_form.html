@@ -1,0 +1,11 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="container p-4">
+  <p class="text-2xl font-bold">Lottery Form Page</p>
+  <form method="post" class="flex flex-col gap-4">
+    {% csrf_token %} {{form}}
+    <button class="btn-generic-link-submit" type="submit">Send</button>
+  </form>
+</div>
+
+{% endblock %}

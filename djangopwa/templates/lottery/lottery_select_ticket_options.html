@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %} 
+{% load static %}
+
+{% block content %}
+<div
+  class="flex flex-col items-center h-full bg-[#2ec2cf] text-black overflow-y-scroll"
+>
+  <div
+    class="flex flex-col w-full mt-8 items-center bg-white p-1 rounded-2xl text-4xl font-bold"
+  >
+    <span class="w-min text-nowrap">VALOR BOLETA</span>
+    <span class="w-min text-nowrap">${{formatted_price}}</span>
+  </div>
+
+  <div
+    class="flex flex-col justify-center gap-8 p-4 items-center bg-white mt-8 rounded-xl"
+  >
+    <div
+      class="flex flex-col justify-center p-4 items-center bg-[#2ec2cf] rounded-xl"
+    >
+      <span class="font-bold text-center text-sm" >TODOS LOS SORTEOS JUEGAN CON LAS 4 ULTIMAS CIFRAS DEL PREMIO MAYOR DE
+        LA LOTERIA DE BOYACA, SIN SERIE</span>
+        <img src="{% static 'images/loteria_boyaca.png' %}" alt="Loteria de boyaca">
+
+    </div>
+
+    <a href="lottery/select_ticket/" class="bg-[#2ec2cf] font-bold text-2xl p-2 rounded-xl text-nowrap">
+      BUSCAR BOLETA 🔎
+    </a>
+    <a href="lottery/lucky_roulette" class="bg-[#2ec2cf] font-bold text-2xl p-2 rounded-xl text-nowrap">
+      MAQUINA DE LA SUERTE
+    </a>
+  </div>
+</div>
+{% endblock %} 

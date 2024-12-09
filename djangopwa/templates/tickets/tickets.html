@@ -1,0 +1,44 @@
+{% extends "layouts/base.html" %} {% block content %}
+<div class="flex justify-center items-center h-screen p-2">
+  <div class="flex flex-col gap-5">
+    <div class="flex flex-col justify-center items-center">
+      <p class="text-2xl font-extrabold">
+        BOLETA
+        <span>
+          {% if ticket.state == 1 %} DISPONIBLE {% else %}
+          NO DISPONIBLE {% endif %}
+        </span>
+      </p>
+      <p class="text-8xl" style="color: #2ec2cf;">
+        {{ ticket.number|stringformat:"04d" }}
+      </p>
+      <p>
+        <span class="font-extrabold">Estado de la boleta:</span>
+        <span>
+          {% if ticket.state == 1 %} Disponible {% elif ticket.state == 2 %}
+          Reservada {% else %} Comprada {% endif %}
+        </span>
+      </p>
+      <p>
+        Por: {{client.name_and_lastname}}
+      </p>
+      <p>
+        Cc: {{client.document_number}}
+      </p>
+      <p>
+        Abonos: {{client.payment_count}}
+      </p>
+    </div>
+
+    <div class="md:flex justify-between gap-5">
+      <a href="{% url 'lottery_purchase_data_form' ticket.lottery_id %}?ticket_number={{ ticket.number }}"
+        class="btn-generic-link-submit flex justify-center items-center text-center md:w-auto w-full">Comprar</a>
+      <a href="{% url 'tickets_reserve_ticket_form' ticket.lottery_id %}?ticket_number={{ ticket.number }}"
+        class="btn-generic-link-submit flex justify-center items-center text-center md:w-auto w-full">Separar</a>
+      <a href="{% url 'lottery_select_ticket' request.resolver_match.kwargs.lottery_id %}"
+        class="btn-generic-link-submit flex justify-center items-center text-center md:w-auto w-full">Elegir otro</a>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
